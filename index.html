@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Conferência de Estoque – Ferramentaria N11</title>
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3350;
+    --accent: #f5a623;
+    --accent2: #3b82f6;
+    --ok: #22c55e;
+    --warn: #f59e0b;
+    --danger: #ef4444;
+    --text: #e8eaf0;
+    --muted: #7a7f9a;
+    --mono: 'Courier New', Courier, monospace;
+    --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+
+- { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+body {
+background: var(–bg);
+color: var(–text);
+font-family: var(–sans);
+min-height: 100vh;
+padding-bottom: 130px;
+}
+
+header {
+background: var(–surface);
+border-bottom: 2px solid var(–accent);
+padding: 14px 16px 12px;
+position: sticky;
+top: 0;
+z-index: 100;
+}
+
+.header-top {
+display: flex;
+align-items: center;
+gap: 10px;
+margin-bottom: 8px;
+}
+
+.header-icon {
+width: 38px; height: 38px;
+background: var(–accent);
+border-radius: 8px;
+display: flex; align-items: center; justify-content: center;
+font-size: 20px;
+flex-shrink: 0;
+}
+
+header h1 {
+font-size: 14px;
+font-weight: 700;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+color: var(–text);
+line-height: 1.2;
+}
+
+header p {
+font-size: 11px;
+color: var(–muted);
+font-family: var(–mono);
+margin-top: 1px;
+}
+
+.progress-bar {
+height: 4px;
+background: var(–border);
+border-radius: 2px;
+overflow: hidden;
+margin-top: 10px;
+}
+
+.progress-fill {
+height: 100%;
+background: linear-gradient(90deg, var(–accent), var(–ok));
+border-radius: 2px;
+transition: width 0.3s ease;
+width: 0%;
+}
+
+.progress-label {
+font-size: 10px;
+font-family: var(–mono);
+color: var(–muted);
+margin-top: 4px;
+text-align: right;
+}
+
+.section-header {
+background: var(–surface2);
+border-left: 3px solid var(–accent2);
+padding: 9px 16px;
+font-size: 10px;
+font-weight: 700;
+letter-spacing: 0.12em;
+text-transform: uppercase;
+color: var(–muted);
+font-family: var(–mono);
+position: sticky;
+top: 118px;
+z-index: 90;
+}
+
+.item-card {
+border-bottom: 1px solid var(–border);
+padding: 13px 16px;
+background: var(–surface);
+transition: background 0.2s;
+}
+
+.item-card.filled { background: #151e2e; }
+
+.item-name {
+font-size: 13px;
+font-weight: 600;
+color: var(–text);
+margin-bottom: 3px;
+line-height: 1.35;
+}
+
+.item-code {
+font-size: 10px;
+font-family: var(–mono);
+color: var(–muted);
+margin-bottom: 9px;
+}
+
+.item-meta {
+display: flex;
+gap: 7px;
+margin-bottom: 10px;
+}
+
+.badge {
+font-family: var(–mono);
+font-size: 10px;
+padding: 2px 7px;
+border-radius: 4px;
+font-weight: 600;
+border: 1px solid;
+}
+
+.badge-min { color: var(–warn); border-color: var(–warn); background: rgba(245,158,11,0.08); }
+.badge-max { color: var(–accent2); border-color: var(–accent2); background: rgba(59,130,246,0.08); }
+
+.input-row {
+display: flex;
+align-items: center;
+gap: 8px;
+}
+
+.input-label {
+font-size: 11px;
+color: var(–muted);
+font-family: var(–mono);
+white-space: nowrap;
+min-width: 68px;
+}
+
+.qty-input {
+background: var(–bg);
+border: 1.5px solid var(–border);
+border-radius: 8px;
+color: var(–text);
+font-family: var(–mono);
+font-size: 20px;
+font-weight: 700;
+padding: 10px 12px;
+width: 110px;
+text-align: center;
+outline: none;
+transition: border-color 0.2s, background 0.2s;
+-webkit-appearance: none;
+appearance: none;
+}
+
+.qty-input:focus { border-color: var(–accent); background: #1a1500; }
+.qty-input.status-ok  { border-color: var(–ok);     background: rgba(34,197,94,0.06); }
+.qty-input.status-low { border-color: var(–danger);  background: rgba(239,68,68,0.08); }
+
+.status-tag {
+font-size: 10px;
+font-family: var(–mono);
+font-weight: 700;
+padding: 4px 8px;
+border-radius: 4px;
+display: none;
+}
+.status-tag.visible { display: inline-block; }
+.status-tag.ok  { background: rgba(34,197,94,0.15);  color: var(–ok); }
+.status-tag.low { background: rgba(239,68,68,0.15);   color: var(–danger); }
+
+.solicitacao-row {
+display: none;
+margin-top: 8px;
+align-items: center;
+gap: 8px;
+background: rgba(239,68,68,0.07);
+border-radius: 6px;
+padding: 6px 10px;
+}
+.solicitacao-row.visible { display: flex; }
+.sol-label { font-size: 11px; color: var(–muted); font-family: var(–mono); }
+.sol-value { font-family: var(–mono); font-size: 15px; font-weight: 700; color: var(–danger); }
+
+.bottom-bar {
+position: fixed;
+bottom: 0; left: 0; right: 0;
+background: var(–surface);
+border-top: 2px solid var(–border);
+padding: 10px 16px 14px;
+z-index: 200;
+}
+
+.bottom-bar-info {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 8px;
+font-family: var(–mono);
+font-size: 10px;
+color: var(–muted);
+}
+
+.stat { display: flex; align-items: center; gap: 4px; }
+.stat-dot { width: 7px; height: 7px; border-radius: 50%; }
+
+.btn-generate {
+width: 100%;
+background: var(–accent);
+color: #0f1117;
+border: none;
+border-radius: 10px;
+font-family: var(–sans);
+font-size: 14px;
+font-weight: 700;
+padding: 13px;
+cursor: pointer;
+letter-spacing: 0.04em;
+text-transform: uppercase;
+-webkit-appearance: none;
+transition: opacity 0.15s;
+}
+.btn-generate:active { opacity: 0.75; }
+
+.modal-overlay {
+display: none;
+position: fixed;
+inset: 0;
+background: rgba(0,0,0,0.88);
+z-index: 500;
+padding: 16px;
+overflow-y: auto;
+align-items: flex-start;
+justify-content: center;
+}
+.modal-overlay.open { display: flex; }
+
+.modal {
+background: var(–surface);
+border: 1.5px solid var(–border);
+border-radius: 16px;
+padding: 22px 18px;
+width: 100%;
+max-width: 520px;
+margin: auto;
+}
+
+.modal h2 { font-size: 15px; font-weight: 700; margin-bottom: 3px; }
+
+.modal-date {
+font-family: var(–mono);
+font-size: 11px;
+color: var(–muted);
+margin-bottom: 14px;
+}
+
+.report-box {
+background: var(–bg);
+border: 1px solid var(–border);
+border-radius: 10px;
+padding: 14px;
+font-family: var(–mono);
+font-size: 11.5px;
+line-height: 1.7;
+color: var(–text);
+white-space: pre-wrap;
+word-break: break-word;
+max-height: 42vh;
+overflow-y: auto;
+margin-bottom: 14px;
+}
+
+.modal-btn-row { display: flex; gap: 8px; margin-bottom: 8px; }
+
+.btn-modal {
+flex: 1;
+padding: 13px 8px;
+border-radius: 10px;
+font-family: var(–sans);
+font-size: 12px;
+font-weight: 700;
+border: none;
+cursor: pointer;
+text-align: center;
+-webkit-appearance: none;
+text-decoration: none;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 5px;
+transition: opacity 0.15s;
+}
+.btn-modal:active { opacity: 0.75; }
+
+.btn-copy-modal { background: var(–surface2); color: var(–text); border: 1.5px solid var(–border); }
+.btn-whatsapp   { background: #25d366; color: #fff; }
+.btn-excel      { background: #1d6f42; color: #fff; width: 100%; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 14px; border-radius: 10px; font-family: var(–sans); font-size: 13px; font-weight: 700; border: none; cursor: pointer; -webkit-appearance: none; }
+.btn-close-modal { background: none; border: 1px solid var(–border); color: var(–muted); width: 100%; border-radius: 10px; padding: 11px; font-size: 13px; cursor: pointer; font-family: var(–sans); -webkit-appearance: none; }
+
+.intro-section { padding: 16px 16px 0; }
+.intro-label {
+font-size: 10px; font-family: var(–mono);
+color: var(–muted); text-transform: uppercase;
+letter-spacing: 0.1em; margin-bottom: 7px;
+}
+
+.ferramenteiro-input {
+background: var(–bg);
+border: 1.5px solid var(–border);
+border-radius: 8px;
+color: var(–text);
+font-family: var(–sans);
+font-size: 15px;
+padding: 11px 13px;
+width: 100%;
+outline: none;
+margin-bottom: 14px;
+-webkit-appearance: none;
+}
+.ferramenteiro-input:focus { border-color: var(–accent); }
+
+.offline-banner {
+background: rgba(59,130,246,0.10);
+border: 1px solid rgba(59,130,246,0.35);
+border-radius: 8px;
+padding: 10px 13px;
+font-size: 11px;
+color: #93c5fd;
+font-family: var(–mono);
+margin-bottom: 14px;
+line-height: 1.5;
+}
+</style>
+
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div class="header-icon">🔧</div>
+    <div>
+      <h1>Conferência de Estoque</h1>
+      <p id="header-date">Ferramentaria N11</p>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+  <div class="progress-label" id="progressLabel">0 / 55 itens conferidos</div>
+</header>
+
+<div class="intro-section">
+  <div class="offline-banner">
+    📵 Funciona sem internet — preencha na mina e envie quando chegar na superfície.
+  </div>
+  <div class="intro-label">Ferramenteiro responsável</div>
+  <input class="ferramenteiro-input" id="ferramenteiro" type="text"
+    placeholder="Digite seu nome..." autocomplete="off" autocorrect="off">
+</div>
+
+<div id="itemList"></div>
+
+<div class="bottom-bar">
+  <div class="bottom-bar-info">
+    <div class="stat"><div class="stat-dot" style="background:var(--ok)"></div><span id="stat-ok">0 OK</span></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--danger)"></div><span id="stat-low">0 Abaixo</span></div>
+    <div class="stat"><div class="stat-dot" style="background:var(--warn)"></div><span id="stat-req">0 Solicitar</span></div>
+  </div>
+  <div style="display:flex;gap:8px;">
+    <button class="btn-generate" style="flex:1;" onclick="openModal()">📋 Relatório</button>
+    <button class="btn-generate" id="btn-excel-main" style="flex:1;background:#1d6f42;color:#fff;" onclick="exportCSV()">📊 Excel</button>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h2>📤 Relatório de Estoque</h2>
+    <div class="modal-date" id="modalDateLabel"></div>
+    <div class="report-box" id="reportBox"></div>
+
+
+<div class="modal-btn-row">
+  <button class="btn-modal btn-copy-modal" onclick="copyReport()">📋 Copiar texto</button>
+  <a class="btn-modal btn-whatsapp" id="whatsappLink" href="#" target="_blank">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    WhatsApp
+  </a>
+</div>
+
+<button class="btn-close-modal" onclick="closeModal()">Fechar</button>
+
+
+  </div>
+</div>
+
+<script>
+const materiais = [
+  { codigo: "100130995", nome: 'Adaptador Polipropileno Rígido Preto 1"', grupo: "Mecânica",   min: 15,   max: 23   },
+  { codigo: "100130343", nome: 'Adaptador Polipropileno Rígido Preto 2"', grupo: "Mecânica",   min: 15,   max: 23   },
+  { codigo: "100624476", nome: "APR",                                      grupo: "Geral",      min: 10,   max: 15   },
+  { codigo: "100250328", nome: "Arrebite de Repuxo 4.8x19 cx 1.000 unid.",grupo: "Geral",      min: 50,   max: 75   },
+  { codigo: "100133661", nome: "Barbante para placa de bloqueio",          grupo: "Geral",      min: 1,    max: 2    },
+  { codigo: "100130404", nome: "Boia de nível",                            grupo: "Elétrica",   min: 1,    max: 2    },
+  { codigo: "100129888", nome: 'Cabo de Aço Diâmetro Nominal 3/16"',      grupo: "Mecânica",   min: 500,  max: 750  },
+  { codigo: "100255942", nome: "Cinta Catraca Ventilador",                 grupo: "Mecânica",   min: 10,   max: 15   },
+  { codigo: "100130871", nome: "Conector Bimetálico para Derivação Par. Fendido", grupo: "Elétrica", min: 50, max: 75 },
+  { codigo: "100259106", nome: "Corrente Elos 16x31mm cx c/50m",          grupo: "Equipagem",  min: 100,  max: 150  },
+  { codigo: "100130329", nome: "Desengripante",                            grupo: "Geral",      min: 2,    max: 3    },
+  { codigo: "100253445", nome: "DR 63A",                                   grupo: "Elétrica",   min: 5,    max: 8    },
+  { codigo: "100259015", nome: 'Engate Rápido 1"',                        grupo: "Mecânica",   min: 15,   max: 23   },
+  { codigo: "100624681", nome: "Etiqueta de Bloqueio",                     grupo: "Geral",      min: 30,   max: 45   },
+  { codigo: "Contrato",  nome: "Etiqueta de Identificação (vem de vai para)", grupo: "Elétrica", min: 200, max: 300 },
+  { codigo: "100130205", nome: "Fita de Alta-Fusão",                       grupo: "Elétrica",   min: 10,   max: 15   },
+  { codigo: "100259246", nome: "Fita Hellerman G 800 unidades cada caixa",grupo: "Geral",      min: 1600, max: 2400 },
+  { codigo: "100131229", nome: "Fita Hellerman M",                         grupo: "Geral",      min: 300,  max: 450  },
+  { codigo: "100135783", nome: "Fita Hellerman P",                         grupo: "Geral",      min: 300,  max: 450  },
+  { codigo: "100259105", nome: "Fita Isolante",                            grupo: "Elétrica",   min: 15,   max: 23   },
+  { codigo: "100141595", nome: "Fita Zebrada",                             grupo: "Geral",      min: 5,    max: 8    },
+  { codigo: "100677540", nome: "Kit Emenda Contrátil a Frio 4x95mm",      grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100130094", nome: "Lâmina de Serra",                          grupo: "Geral",      min: 5,    max: 8    },
+  { codigo: "100304204", nome: "Lâmpada LED E27 Branca",                   grupo: "Elétrica",   min: 300,  max: 450  },
+  { codigo: "100315435", nome: "Lâmpada LED E27 Verde",                    grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100136568", nome: "Limpa Contato",                            grupo: "Elétrica",   min: 2,    max: 3    },
+  { codigo: "100136095", nome: "Luva 70mm",                                grupo: "Elétrica",   min: 60,   max: 90   },
+  { codigo: "100139579", nome: "Luva 95mm",                                grupo: "Elétrica",   min: 200,  max: 300  },
+  { codigo: "100431966", nome: "Orange Limpa Mãos",                        grupo: "Geral",      min: 1,    max: 2    },
+  { codigo: "100259116", nome: "Pano de Limpeza em Rolo",                  grupo: "Geral",      min: 1,    max: 2    },
+  { codigo: "100363274", nome: "Parabolt",                                  grupo: "Equipagem",  min: 200,  max: 300  },
+  { codigo: "100134822", nome: "Parafuso M10",                              grupo: "Equipagem",  min: 50,   max: 75   },
+  { codigo: "100134694", nome: "Parafusos 1/4",                             grupo: "Equipagem",  min: 200,  max: 300  },
+  { codigo: "100433743", nome: "Placa Resinada 500x900mm",                 grupo: "Elétrica",   min: 2,    max: 3    },
+  { codigo: "100252858", nome: "Placa Resinada 60cm",                      grupo: "Elétrica",   min: 2,    max: 3    },
+  { codigo: "100435311", nome: "Plástico Saco para Tampar Ponta de Cabos",grupo: "Elétrica",   min: 100,  max: 150  },
+  { codigo: "100135050", nome: "Porca 1/4",                                 grupo: "Equipagem",  min: 200,  max: 300  },
+  { codigo: "100135082", nome: "Porca M10",                                 grupo: "Equipagem",  min: 50,   max: 75   },
+  { codigo: "100375836", nome: "Porca Olhal para Parabolt",                grupo: "Equipagem",  min: 200,  max: 300  },
+  { codigo: "100135223", nome: "Porta Cadeado",                             grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100576334", nome: 'Prensa Cabo 1"',                           grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100576332", nome: 'Prensa Cabo 1/2"',                         grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100612787", nome: 'Prensa Cabo 2"',                           grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100576333", nome: 'Prensa Cabo 3/4"',                         grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100135826", nome: "Receptáculo",                               grupo: "Elétrica",   min: 200,  max: 300  },
+  { codigo: "100130911", nome: 'Redução de PEAD 2" x 1"',                 grupo: "Mecânica",   min: 15,   max: 23   },
+  { codigo: "100435832", nome: "Saco Bag",                                  grupo: "Geral",      min: 30,   max: 45   },
+  { codigo: "100435212", nome: "Saco Plástico Transparente Grande",        grupo: "Geral",      min: 100,  max: 150  },
+  { codigo: "100135786", nome: "Terminal Olhal 10mm",                       grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100135784", nome: "Terminal Olhal 50mm",                       grupo: "Elétrica",   min: 30,   max: 45   },
+  { codigo: "100135792", nome: "Terminal Olhal 95mm",                       grupo: "Elétrica",   min: 100,  max: 150  },
+  { codigo: "100253448", nome: "Tomada 3P+T 63A 440V S4506DJ",             grupo: "Elétrica",   min: 3,    max: 5    },
+  { codigo: "100607288", nome: "Tomada de Sobrepor 250A com Bloqueio",     grupo: "Elétrica",   min: 3,    max: 5    },
+  { codigo: "100376810", nome: 'Válvula de Esfera Diâmetro 1"',            grupo: "Mecânica",   min: 15,   max: 23   },
+  { codigo: "100130220", nome: 'Válvula de Esfera Diâmetro 2"',            grupo: "Mecânica",   min: 10,   max: 15   },
+];
+
+const grupos = [...new Set(materiais.map(m => m.grupo))].sort();
+const estoques = {};
+
+function calcSol(atual, min, max) { return atual < min ? max - atual : 0; }
+
+function buildList() {
+  const now = new Date();
+  document.getElementById('header-date').textContent =
+    N11 – ${now.toLocaleDateString('pt-BR')};
+
+  const container = document.getElementById('itemList');
+  grupos.forEach(grupo => {
+    const items = materiais.filter(m => m.grupo === grupo);
+    const sec = document.createElement('div');
+    sec.className = 'section-header';
+    sec.textContent = 📦 ${grupo} (${items.length} itens);
+    container.appendChild(sec);
+
+    items.forEach(mat => {
+      const card = document.createElement('div');
+      card.className = 'item-card';
+      card.id = card-${mat.codigo};
+      card.innerHTML = `
+        <div class="item-name">${mat.nome}</div>
+        <div class="item-code">${mat.codigo}</div>
+        <div class="item-meta">
+          <span class="badge badge-min">MÍN ${mat.min}</span>
+          <span class="badge badge-max">MÁX ${mat.max}</span>
+        </div>
+        <div class="input-row">
+          <span class="input-label">ESTOQUE:</span>
+          <input class="qty-input" id="qty-${mat.codigo}"
+            type="number" inputmode="numeric" pattern="[0-9]*"
+            min="0" placeholder="—" autocomplete="off"
+            oninput="onInput('${mat.codigo}',${mat.min},${mat.max})">
+          <span class="status-tag" id="tag-${mat.codigo}"></span>
+        </div>
+        <div class="solicitacao-row" id="sol-${mat.codigo}">
+          <span class="sol-label">📦 SOLICITAR:</span>
+          <span class="sol-value" id="solval-${mat.codigo}"></span>
+          <span class="sol-label">unidades</span>
+        </div>`;
+      container.appendChild(card);
+    });
+  });
+}
+
+function onInput(codigo, min, max) {
+  const input  = document.getElementById(qty-${codigo});
+  const tag    = document.getElementById(tag-${codigo});
+  const solRow = document.getElementById(sol-${codigo});
+  const solVal = document.getElementById(solval-${codigo});
+  const card   = document.getElementById(card-${codigo});
+  const val = input.value.trim();
+
+  if (val === '') {
+    delete estoques[codigo];
+    input.className = 'qty-input';
+    tag.className = 'status-tag';
+    solRow.className = 'solicitacao-row';
+    card.className = 'item-card';
+    updateStats(); return;
+  }
+
+  const atual = parseInt(val);
+  estoques[codigo] = atual;
+  const sol = calcSol(atual, min, max);
+  const ok  = atual >= min;
+
+  input.className  = qty-input ${ok ? 'status-ok' : 'status-low'};
+  tag.className    = status-tag visible ${ok ? 'ok' : 'low'};
+  tag.textContent  = ok ? '✓ OK' : '✗ BAIXO';
+  card.className   = 'item-card filled';
+  solRow.className = sol > 0 ? 'solicitacao-row visible' : 'solicitacao-row';
+  if (sol > 0) solVal.textContent = sol;
+
+  updateStats();
+}
+
+function updateStats() {
+  const total   = materiais.length;
+  const nFilled = Object.keys(estoques).length;
+  const req = materiais.filter(m => estoques[m.codigo] !== undefined && calcSol(estoques[m.codigo], m.min, m.max) > 0);
+  const low = materiais.filter(m => estoques[m.codigo] !== undefined && estoques[m.codigo] < m.min);
+  const ok  = materiais.filter(m => estoques[m.codigo] !== undefined && estoques[m.codigo] >= m.min);
+
+  document.getElementById('progressFill').style.width  = ${(nFilled/total)*100}%;
+  document.getElementById('progressLabel').textContent  = ${nFilled} / ${total} itens conferidos;
+  document.getElementById('stat-ok').textContent        = ${ok.length} OK;
+  document.getElementById('stat-low').textContent       = ${low.length} Abaixo;
+  document.getElementById('stat-req').textContent       = ${req.length} Solicitar;
+}
+
+function buildReport() {
+  const nome    = document.getElementById('ferramenteiro').value.trim() || 'Não informado';
+  const now     = new Date();
+  const dataStr = now.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+  const horaStr = now.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+
+  const comSol  = materiais.filter(m => estoques[m.codigo] !== undefined && calcSol(estoques[m.codigo], m.min, m.max) > 0);
+  const semSol  = materiais.filter(m => estoques[m.codigo] !== undefined && calcSol(estoques[m.codigo], m.min, m.max) === 0);
+  const naoConf = materiais.filter(m => estoques[m.codigo] === undefined);
+
+  let r = 🔧 *CONFERÊNCIA DE ESTOQUE – N11*\n;
+  r += 📅 ${dataStr} às ${horaStr}\n;
+  r += 👷 Ferramenteiro: ${nome}\n;
+  r += ${'─'.repeat(34)}\n\n;
+
+  if (comSol.length > 0) {
+    r += ⚠️ *SOLICITAR (${comSol.length} itens)*\n${'─'.repeat(34)}\n;
+    comSol.forEach(m => {
+      const d = estoques[m.codigo];
+      const s = calcSol(d, m.min, m.max);
+      r += • ${m.nome}\n  Disponível: ${d} | Mín: ${m.min} | *Solicitar: ${s}*\n;
+    });
+    r += \n;
+  }
+
+  if (semSol.length > 0) {
+    r += ✅ *ESTOQUE OK (${semSol.length} itens)*\n${'─'.repeat(34)}\n;
+    semSol.forEach(m => {
+      r += • ${m.nome}\n  Disponível: ${estoques[m.codigo]} | Solicitar: 0\n;
+    });
+    r += \n;
+  }
+
+  if (naoConf.length > 0) {
+    r += ❓ *NÃO CONFERIDOS (${naoConf.length} itens)*\n${'─'.repeat(34)}\n;
+    naoConf.forEach(m => { r += • ${m.nome}\n; });
+    r += \n;
+  }
+
+  r += ${'─'.repeat(34)}\n;
+  r += Total: ${materiais.length} | Conferidos: ${Object.keys(estoques).length} | Solicitar: ${comSol.length};
+  return r;
+}
+
+function openModal() {
+  const report = buildReport();
+  document.getElementById('reportBox').textContent = report;
+  const now = new Date();
+  document.getElementById('modalDateLabel').textContent =
+    now.toLocaleDateString('pt-BR', {weekday:'long', day:'2-digit', month:'long', year:'numeric'});
+  document.getElementById('whatsappLink').href =
+    https://wa.me/?text=${encodeURIComponent(report)};
+  document.getElementById('modalOverlay').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+
+function copyReport() {
+  const text = document.getElementById('reportBox').textContent;
+  const btn  = document.querySelector('.btn-copy-modal');
+  const done = () => { btn.textContent = '✓ Copiado!'; setTimeout(() => btn.textContent = '📋 Copiar texto', 2000); };
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(done);
+  } else {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta); ta.focus(); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta); done();
+  }
+}
+
+// ── EXPORTAR CSV — 100% offline, abre direto no Excel ──────────────────
+function exportCSV() {
+  const nome    = document.getElementById('ferramenteiro').value.trim() || 'Não informado';
+  const now     = new Date();
+  const dataStr = now.toLocaleDateString('pt-BR', {day:'2-digit', month:'2-digit', year:'numeric'});
+
+  // BOM UTF-8 garante acentos no Excel
+  let csv = '\uFEFF';
+  csv += CONFERÊNCIA DE ESTOQUE - FERRAMENTARIA N11\n;
+  csv += Data:;${dataStr}\n;
+  csv += Ferramenteiro:;${nome}\n\n;
+  csv += Código;Descrição;Grupo;Qtd. Mínima;Qtd. Máxima;Disponível em ${dataStr};A Solicitar;Status\n;
+
+  const esc = v => "${String(v).replace(/"/g,'""')}";
+
+  materiais.forEach(m => {
+    const disp   = estoques[m.codigo] !== undefined ? estoques[m.codigo] : '';
+    const sol    = estoques[m.codigo] !== undefined ? calcSol(estoques[m.codigo], m.min, m.max) : '';
+    const status = estoques[m.codigo] !== undefined
+      ? (estoques[m.codigo] >= m.min ? 'OK' : 'ABAIXO DO MÍNIMO')
+      : 'NÃO CONFERIDO';
+    csv += ${esc(m.codigo)};${esc(m.nome)};${esc(m.grupo)};${m.min};${m.max};${disp};${sol};${esc(status)}\n;
+  });
+
+  const fname = Estoque_N11_${dataStr.replace(/\//g,'-')}.csv;
+  const blob  = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+
+  // iPhone/Safari: abre o arquivo em nova aba para salvar manualmente
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const isIOS    = /iPad|iPhone|iPod/.test(navigator.userAgent);
+
+  if (isIOS || isSafari) {
+    const reader = new FileReader();
+    reader.onload = function() {
+      const a = document.createElement('a');
+      a.href = reader.result;
+      a.download = fname;
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    };
+    reader.readAsDataURL(blob);
+  } else {
+    const url = URL.createObjectURL(blob);
+    const a   = document.createElement('a');
+    a.href = url; a.download = fname;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  const btn = document.getElementById('btn-excel-main');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Baixado!';
+  setTimeout(() => btn.textContent = orig, 2500);
+}
+
+buildList();
+updateStats();
+</script>
+
+</body>
+</html>
