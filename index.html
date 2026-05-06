@@ -152,7 +152,7 @@
 </header>
 
 <div class="intro-section">
-    <div class="offline-banner">📵 Funciona sem internet — preencha na mina e envie quando chegar na superfície.</div>
+    <div class="offline-banner">Optionally works offline — sync when surface signal is back.</div>
     <div style="font-size:10px; color:var(--muted); text-transform:uppercase; margin-bottom:7px;">Ferramenteiro responsável</div>
     <input class="ferramenteiro-input" id="ferramenteiro" type="text" placeholder="Digite seu nome..." autocomplete="off">
 </div>
@@ -310,7 +310,7 @@ function onInput(codigo, min, max) {
     tag.textContent = ok ? '✓ OK' : '✗ BAIXO';
     card.className = 'item-card filled';
     solRow.className = sol > 0 ? 'solicitacao-row visible' : 'solicitacao-row';
-    if (sol > 0) solVal.textContent = sol + " unidades";
+    if (sol > 0) solVal.textContent = sol + " unid.";
     updateStats();
 }
 
@@ -330,10 +330,54 @@ function updateStats() {
 
 function openModal() {
     const nome = document.getElementById('ferramenteiro').value.trim() || 'Não informado';
-    const report = "🔧 CONFERÊNCIA FERRAMENTARIA N11\n👷 " + nome + "\n\n" + 
-                   materiais.filter(m => estoques[m.codigo] !== undefined)
-                   .map(m => m.nome + ": " + estoques[m.codigo] + (calcSol(estoques[m.codigo], m.min, m.max) > 0 ? " (SOLICITAR)" : "")).join("\n");
-    
+    const agora = new Date();
+    const dataFormatada = agora.toLocaleDateString('pt-BR') + ' às ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+    const solicitar = [];
+    const ok = [];
+    const naoConferidos = [];
+
+    materiais.forEach(m => {
+        const disponivel = estoques[m.codigo];
+        if (disponivel === undefined) {
+            naoConferidos.push(`* ${m.nome}`);
+        } else {
+            const qtdSolicitar = calcSol(disponivel, m.min, m.max);
+            if (qtdSolicitar > 0) {
+                solicitar.push(`* ${m.nome}\n  Disponível: ${disponivel} | Mín: ${m.min} | Solicitar: ${qtdSolicitar}`);
+            } else {
+                ok.push(`* ${m.nome}\n  Disponível: ${disponivel} | Solicitar: 0`);
+            }
+        }
+    });
+
+    let report = `🔧 CONFERÊNCIA DE ESTOQUE – N11\n`;
+    report += `📅 ${dataFormatada}\n`;
+    report += `👷 Ferramenteiro: ${nome}\n`;
+    report += `──────────────────────────────────\n\n`;
+
+    if (solicitar.length > 0) {
+        report += `⚠️ SOLICITAR (${solicitar.length} itens)\n`;
+        report += `──────────────────────────────────\n`;
+        report += solicitar.join('\n') + `\n\n`;
+    }
+
+    if (ok.length > 0) {
+        report += `✅ ESTOQUE OK (${ok.length} itens)\n`;
+        report += `──────────────────────────────────\n`;
+        report += ok.join('\n') + `\n\n`;
+    }
+
+    if (naoConferidos.length > 0) {
+        report += `❓ NÃO CONFERIDOS (${naoConferidos.length} itens)\n`;
+        report += `──────────────────────────────────\n`;
+        report += naoConferidos.join('\n') + `\n\n`;
+    }
+
+    const totalConferidos = solicitar.length + ok.length;
+    report += `──────────────────────────────────\n`;
+    report += `Total: ${materiais.length} | Conferidos: ${totalConferidos} | Solicitar: ${solicitar.length}`;
+
     document.getElementById('reportBox').textContent = report;
     document.getElementById('whatsappLink').href = "https://wa.me/?text=" + encodeURIComponent(report);
     document.getElementById('modalOverlay').classList.add('open');
