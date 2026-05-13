@@ -1,0 +1,17 @@
+{
+  "name": "Conferência N11",
+  "short_name": "Estoque N11",
+  "description": "App de conferência de estoque offline para a Ferramentaria N11.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0f1117",
+  "theme_color": "#f5a623",
+  "icons": [
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/2800/2800187.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
